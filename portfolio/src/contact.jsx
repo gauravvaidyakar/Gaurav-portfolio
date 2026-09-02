@@ -7,12 +7,47 @@ import { FaCode } from "react-icons/fa";
 import { LuPhoneCall } from "react-icons/lu";
 import { MdEngineering } from "react-icons/md";
 import { motion } from "framer-motion";
+import { useState } from "react";
 
 const Contact = () => {
-  const handleSubmit = (e) => {
+  const [formData, setFormData] = useState({ name: "", email: "", subject: "", message: "" });
+  const [submission, setSubmission] = useState({ status: "idle", message: "" });
+
+  const handleChange = (event) => {
+    const { name, value } = event.target;
+    setFormData((currentData) => ({ ...currentData, [name]: value }));
+  };
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    // Handle form submission here
-    alert('Thank you for your message! I will get back to you soon.');
+    const trimmedData = Object.fromEntries(
+      Object.entries(formData).map(([field, value]) => [field, value.trim()]),
+    );
+
+    if (Object.values(trimmedData).some((value) => !value)) {
+      setSubmission({ status: "error", message: "Please complete all fields." });
+      return;
+    }
+
+    setSubmission({ status: "loading", message: "" });
+
+    try {
+      const response = await fetch(`${import.meta.env.VITE_API_URL || ""}/api/v1/contact`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(trimmedData),
+      });
+      const responseBody = await response.json().catch(() => ({}));
+
+      if (!response.ok) {
+        throw new Error(responseBody.message || "Unable to send your message. Please try again.");
+      }
+
+      setSubmission({ status: "success", message: "Message sent successfully" });
+      setFormData({ name: "", email: "", subject: "", message: "" });
+    } catch (error) {
+      setSubmission({ status: "error", message: error.message || "Unable to send your message. Please try again." });
+    }
   };
 
   return (
@@ -108,8 +143,12 @@ const Contact = () => {
               <div className="input-group">
                 <label>Your Name</label>
                 <input
+                  name="name"
                   type="text"
                   placeholder="Enter your name"
+                  value={formData.name}
+                  onChange={handleChange}
+                  maxLength="100"
                   required
                 />
               </div>
@@ -117,8 +156,12 @@ const Contact = () => {
               <div className="input-group">
                 <label>Your Email</label>
                 <input
+                  name="email"
                   type="email"
                   placeholder="Enter your email"
+                  value={formData.email}
+                  onChange={handleChange}
+                  maxLength="254"
                   required
                 />
               </div>
@@ -127,8 +170,12 @@ const Contact = () => {
             <div className="input-group">
               <label>Subject</label>
               <input
+                name="subject"
                 type="text"
                 placeholder="What is this about?"
+                value={formData.subject}
+                onChange={handleChange}
+                maxLength="200"
                 required
               />
             </div>
@@ -136,16 +183,26 @@ const Contact = () => {
             <div className="input-group">
               <label>Message</label>
               <textarea
+                name="message"
                 rows="6"
                 placeholder="Write your message..."
+                value={formData.message}
+                onChange={handleChange}
+                maxLength="5000"
                 required
-              ></textarea>
+              />
             </div>
 
-            <button type="submit" className="send-btn">
-              Send Message
+            <button type="submit" className="send-btn" disabled={submission.status === "loading"}>
+              {submission.status === "loading" ? "Sending..." : "Send Message"}
               <FaPaperPlane />
             </button>
+
+            {submission.status !== "idle" && submission.status !== "loading" && (
+              <p className={`form-status ${submission.status}`} role="status" aria-live="polite">
+                {submission.message}
+              </p>
+            )}
 
           </form>
         </div>

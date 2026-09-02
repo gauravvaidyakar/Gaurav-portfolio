@@ -1,3 +1,15 @@
+# Portfolio Contact Backend
+
+The contact form posts to `POST /api/v1/contact`. The backend validates and stores each message in MongoDB, then sends an SMTP email notification.
+
+## Setup
+
+1. Copy `.env.example` to `.env` and set your MongoDB URI and SMTP credentials.
+2. Run `npm run server:dev` in one terminal.
+3. Run `npm run dev` in another terminal.
+
+For production, run `npm run build`, then `npm run server`; the Express server serves the built React app and API together.
+
 # React + Vite
 
 This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.

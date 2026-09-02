@@ -425,15 +425,12 @@ function HomePage() {
           >
             <img src={project} alt="" />
             <h1>
-              Social-Media — Social Media PlatForm With Modern And responsive UI.
-              <br />
-              Landing Page
+              Social-Media — Social Media PlatForm With Modern.
             </h1>
             <div className="in-Skill-Rank">
               <div className="page">
                 <a href="">Landing Page</a>
               </div>
-              <br />
               <div className="page">
                 <a href="">kumpin Studio</a>
               </div>
